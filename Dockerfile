@@ -1,9 +1,18 @@
-FROM maven:3.9.9-eclipse-temurin-17
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
-
 COPY . .
+
+# Força UTF-8
+ENV MAVEN_OPTS="-Dfile.encoding=UTF-8"
 
 RUN mvn clean package -DskipTests
 
-CMD ["java","-jar","target/backend-hotels-api-0.0.1-SNAPSHOT.jar"]
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+COPY --from=build /app/target/Backend-hotels-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+CMD ["java","-jar","app.jar"]
