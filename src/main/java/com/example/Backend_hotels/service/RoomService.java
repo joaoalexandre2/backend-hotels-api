@@ -80,4 +80,40 @@ public class RoomService {
                 room.getHotel().getId()
         );
     }
+
+    // ============================
+// ATUALIZAR ROOM
+// ============================
+    public RoomResponseDTO update(Long id, RoomRequestDTO dto) {
+
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room não encontrada"));
+
+        Hotel hotel = hotelRepository.findById(dto.getHotelId())
+                .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+
+        room.setRoomNumber(dto.getRoomNumber());
+        room.setType(dto.getType());
+        room.setBeds(dto.getBeds());
+        room.setCapacity(dto.getCapacity());
+        room.setPrice(dto.getPrice());
+        room.setAvailability(dto.getAvailability());
+        room.setHotel(hotel);
+
+        Room updatedRoom = roomRepository.save(room);
+
+        return convertToResponseDTO(updatedRoom);
+    }
+
+    // ============================
+// DELETAR ROOM
+// ============================
+    public void delete(Long id) {
+
+        if (!roomRepository.existsById(id)) {
+            throw new RuntimeException("Room não encontrada");
+        }
+
+        roomRepository.deleteById(id);
+    }
 }
