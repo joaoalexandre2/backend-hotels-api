@@ -7,10 +7,11 @@ import com.example.Backend_hotels.dto.hotel.HotelResponseDTO;
 import com.example.Backend_hotels.dto.hotel.RatingDTO;
 import com.example.Backend_hotels.exception.ResourceNotFoundException;
 import com.example.Backend_hotels.repository.HotelRepository;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class HotelService {
@@ -19,6 +20,24 @@ public class HotelService {
 
     public HotelService(HotelRepository hotelRepository) {
         this.hotelRepository = hotelRepository;
+    }
+
+    // ============================
+    // ADICIONAR IMAGEM
+    // ============================
+    public void addImage(Long hotelId, String url) {
+
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new RuntimeException("Hotel não encontrado"));
+
+        // 🔥 AGORA É STRING (NÃO HotelImage)
+        if (hotel.getImages() == null) {
+            hotel.setImages(new ArrayList<>());
+        }
+
+        hotel.getImages().add(url);
+
+        hotelRepository.save(hotel);
     }
 
     // ============================
@@ -51,6 +70,7 @@ public class HotelService {
     // BUSCAR POR ID
     // ============================
     public HotelResponseDTO findById(Long id) {
+
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
@@ -62,8 +82,8 @@ public class HotelService {
     }
 
     // ============================
-// ATUALIZAR HOTEL
-// ============================
+    // ATUALIZAR HOTEL
+    // ============================
     public HotelResponseDTO update(Long id, HotelRequestDTO dto) {
 
         Hotel hotel = hotelRepository.findById(id)
@@ -73,7 +93,6 @@ public class HotelService {
                         )
                 );
 
-        // Atualiza os campos
         mapToEntity(dto, hotel);
 
         Hotel updated = hotelRepository.save(hotel);
@@ -82,8 +101,8 @@ public class HotelService {
     }
 
     // ============================
-// DELETAR HOTEL
-// ============================
+    // DELETAR HOTEL
+    // ============================
     public void delete(Long id) {
 
         Hotel hotel = hotelRepository.findById(id)
@@ -97,10 +116,10 @@ public class HotelService {
     }
 
     // ============================
-    // MÉTODOS DE MAPEAMENTO
+    // DTO → ENTITY
     // ============================
-
     private void mapToEntity(HotelRequestDTO dto, Hotel hotel) {
+
         hotel.setName(dto.getName());
         hotel.setCity(dto.getCity());
         hotel.setPricePerNight(dto.getPricePerNight());
@@ -108,16 +127,21 @@ public class HotelService {
         hotel.setDescription(dto.getDescription());
         hotel.setDescriptionHome(dto.getDescriptionHome());
         hotel.setImage(dto.getImage());
-        hotel.setImages(dto.getImages());
         hotel.setAmenities(dto.getAmenities());
 
-        // Se quiser permitir criação de rating inicial
-        // pode criar um padrão aqui
+        // 🔥 garante lista não nula
+        if (hotel.getImages() == null) {
+            hotel.setImages(new ArrayList<>());
+        }
+
         if (hotel.getRating() == null) {
             hotel.setRating(new Rating(0.0, 0, "Novo"));
         }
     }
 
+    // ============================
+    // ENTITY → DTO
+    // ============================
     private HotelResponseDTO mapToResponse(Hotel hotel) {
 
         RatingDTO ratingDTO = null;
@@ -139,11 +163,9 @@ public class HotelService {
                 hotel.getDescription(),
                 hotel.getDescriptionHome(),
                 hotel.getImage(),
-                hotel.getImages(),
+                hotel.getImages(), // ✔ já é List<String>
                 hotel.getAmenities(),
                 ratingDTO
         );
-
-
     }
 }

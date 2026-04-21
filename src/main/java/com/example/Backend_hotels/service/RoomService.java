@@ -2,6 +2,7 @@ package com.example.Backend_hotels.service;
 
 import com.example.Backend_hotels.domain.Hotel;
 import com.example.Backend_hotels.domain.Room;
+import com.example.Backend_hotels.domain.RoomImage;
 import com.example.Backend_hotels.dto.room.RoomRequestDTO;
 import com.example.Backend_hotels.dto.room.RoomResponseDTO;
 import com.example.Backend_hotels.repository.HotelRepository;
@@ -24,7 +25,7 @@ public class RoomService {
     }
 
     // ============================
-    // Criar Room
+    // CRIAR ROOM
     // ============================
     public RoomResponseDTO createRoom(RoomRequestDTO dto) {
 
@@ -46,9 +47,25 @@ public class RoomService {
     }
 
     // ============================
-    // Buscar por ID
+    // ADICIONAR IMAGEM
+    // ============================
+    public void addImage(Long roomId, String url) {
+
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room não encontrada"));
+
+        RoomImage image = new RoomImage(url, room);
+
+        room.getImages().add(image);
+
+        roomRepository.save(room);
+    }
+
+    // ============================
+    // BUSCAR POR ID
     // ============================
     public RoomResponseDTO findById(Long id) {
+
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Room não encontrada"));
 
@@ -56,9 +73,10 @@ public class RoomService {
     }
 
     // ============================
-    // Buscar por Hotel
+    // BUSCAR POR HOTEL
     // ============================
     public List<RoomResponseDTO> findByHotelId(Long hotelId) {
+
         return roomRepository.findByHotelId(hotelId)
                 .stream()
                 .map(this::convertToResponseDTO)
@@ -66,9 +84,17 @@ public class RoomService {
     }
 
     // ============================
-    // Conversão Entity → DTO
+    // CONVERTER ENTITY → DTO
     // ============================
     private RoomResponseDTO convertToResponseDTO(Room room) {
+
+        List<String> images = room.getImages() != null
+                ? room.getImages()
+                .stream()
+                .map(RoomImage::getImageUrl)
+                .collect(Collectors.toList())
+                : List.of();
+
         return new RoomResponseDTO(
                 room.getId(),
                 room.getRoomNumber(),
@@ -77,13 +103,14 @@ public class RoomService {
                 room.getCapacity(),
                 room.getPrice(),
                 room.getAvailability(),
-                room.getHotel().getId()
+                room.getHotel().getId(),
+                images
         );
     }
 
     // ============================
-// ATUALIZAR ROOM
-// ============================
+    // ATUALIZAR ROOM
+    // ============================
     public RoomResponseDTO update(Long id, RoomRequestDTO dto) {
 
         Room room = roomRepository.findById(id)
@@ -106,8 +133,8 @@ public class RoomService {
     }
 
     // ============================
-// DELETAR ROOM
-// ============================
+    // DELETAR ROOM
+    // ============================
     public void delete(Long id) {
 
         if (!roomRepository.existsById(id)) {

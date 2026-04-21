@@ -1,5 +1,7 @@
 package com.example.Backend_hotels.dto.room;
 
+import java.util.List;
+
 public class RoomResponseDTO {
 
     private Long id;
@@ -11,12 +13,21 @@ public class RoomResponseDTO {
     private Boolean availability;
     private Long hotelId;
 
+    // 🔥 NOVO: imagens do quarto
+    private List<String> images;
+
     public RoomResponseDTO() {}
 
-    public RoomResponseDTO(Long id, Integer roomNumber, String type,
-                           Integer beds, Integer capacity,
-                           Double price, Boolean availability,
-                           Long hotelId) {
+    public RoomResponseDTO(Long id,
+                           Integer roomNumber,
+                           String type,
+                           Integer beds,
+                           Integer capacity,
+                           Double price,
+                           Boolean availability,
+                           Long hotelId,
+                           List<String> images) {
+
         this.id = id;
         this.roomNumber = roomNumber;
         this.type = type;
@@ -25,7 +36,12 @@ public class RoomResponseDTO {
         this.price = price;
         this.availability = availability;
         this.hotelId = hotelId;
+        this.images = images;
     }
+
+    // ========================
+    // Getters e Setters
+    // ========================
 
     public Long getId() {
         return id;
@@ -89,5 +105,14 @@ public class RoomResponseDTO {
 
     public void setHotelId(Long hotelId) {
         this.hotelId = hotelId;
+    }
+
+    // 🔥 NOVO
+    public List<String> getImages() {
+        return images;
+    }
+
+    public void setImages(List<String> images) {
+        this.images = images;
     }
 }
