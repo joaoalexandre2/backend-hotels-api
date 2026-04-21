@@ -168,4 +168,19 @@ public class HotelService {
                 ratingDTO
         );
     }
+
+    // Deletar Imagem do Hotel
+    public void removeImage(Long hotelId, String imageUrl) {
+
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Hotel não encontrado com id: " + hotelId)
+                );
+
+        if (hotel.getImages() != null) {
+            hotel.getImages().remove(imageUrl);
+        }
+
+        hotelRepository.save(hotel);
+    }
 }

@@ -126,6 +126,7 @@ import com.example.Backend_hotels.dto.hotel.HotelRequestDTO;
 import com.example.Backend_hotels.dto.hotel.HotelResponseDTO;
 import com.example.Backend_hotels.service.HotelService;
 import com.example.Backend_hotels.service.ImageService;
+import java.util.Map;
 
 import jakarta.validation.Valid;
 
@@ -226,5 +227,18 @@ public class HotelController {
         hotelService.addImage(id, imageUrl);
 
         return ResponseEntity.ok(imageUrl);
+    }
+
+    // ============================
+    // DELETAR IMAGEM
+    // ============================
+
+    @DeleteMapping("/{id}/images")
+    public ResponseEntity<Void> deleteImage(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body
+    ) {
+        hotelService.removeImage(id, body.get("url"));
+        return ResponseEntity.noContent().build();
     }
 }
