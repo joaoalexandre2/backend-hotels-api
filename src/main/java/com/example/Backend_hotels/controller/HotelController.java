@@ -1,9 +1,14 @@
+//
+//
+//// New Hotel Controller
+//
 //package com.example.Backend_hotels.controller;
 //
 //import com.example.Backend_hotels.dto.hotel.HotelRequestDTO;
 //import com.example.Backend_hotels.dto.hotel.HotelResponseDTO;
 //import com.example.Backend_hotels.service.HotelService;
 //import com.example.Backend_hotels.service.ImageService;
+//import java.util.Map;
 //
 //import jakarta.validation.Valid;
 //
@@ -27,19 +32,6 @@
 //                           ImageService imageService) {
 //        this.hotelService = hotelService;
 //        this.imageService = imageService;
-//    }
-//
-//    @PostMapping("/{id}/images")
-//    public ResponseEntity<String> uploadImage(
-//            @PathVariable Long id,
-//            @RequestParam("file") MultipartFile file
-//    ) {
-//
-//        String imageUrl = imageService.uploadImage(file, "hotels/" + id);
-//
-//        hotelService.addImage(id, imageUrl); // 🔥 ESSENCIAL
-//
-//        return ResponseEntity.ok(imageUrl);
 //    }
 //
 //    // ============================
@@ -82,8 +74,8 @@
 //    }
 //
 //    // ============================
-//// ATUALIZAR HOTEL
-//// ============================
+//    // ATUALIZAR HOTEL
+//    // ============================
 //    @PutMapping("/{id}")
 //    public ResponseEntity<HotelResponseDTO> updateHotel(
 //            @PathVariable Long id,
@@ -93,18 +85,17 @@
 //    }
 //
 //    // ============================
-//// DELETAR HOTEL
-//// ============================
+//    // DELETAR HOTEL
+//    // ============================
 //    @DeleteMapping("/{id}")
 //    public ResponseEntity<Void> deleteHotel(@PathVariable Long id) {
 //
 //        hotelService.delete(id);
-//
 //        return ResponseEntity.noContent().build();
 //    }
 //
 //    // ============================
-//    // UPLOAD IMAGEM
+//    // UPLOAD DE IMAGEM
 //    // ============================
 //    @PostMapping("/{id}/images")
 //    public ResponseEntity<String> uploadImage(
@@ -114,19 +105,35 @@
 //
 //        String imageUrl = imageService.uploadImage(file, "hotels/" + id);
 //
+//        // salva a imagem associada ao hotel
+//        hotelService.addImage(id, imageUrl);
+//
 //        return ResponseEntity.ok(imageUrl);
+//    }
+//
+//    // ============================
+//    // DELETAR IMAGEM
+//    // ============================
+//
+//    @DeleteMapping("/{id}/images")
+//    public ResponseEntity<Void> deleteImage(
+//            @PathVariable Long id,
+//            @RequestBody Map<String, String> body
+//    ) {
+//        hotelService.removeImage(id, body.get("url"));
+//        return ResponseEntity.noContent().build();
 //    }
 //}
 
-// New Hotel Controller
+// Novo 26/04/2026
 
 package com.example.Backend_hotels.controller;
 
 import com.example.Backend_hotels.dto.hotel.HotelRequestDTO;
 import com.example.Backend_hotels.dto.hotel.HotelResponseDTO;
+import com.example.Backend_hotels.dto.room.RoomResponseDTO;
 import com.example.Backend_hotels.service.HotelService;
 import com.example.Backend_hotels.service.ImageService;
-import java.util.Map;
 
 import jakarta.validation.Valid;
 
@@ -137,6 +144,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -153,7 +163,7 @@ public class HotelController {
     }
 
     // ============================
-    // CRIAR HOTEL
+    //  CRIAR HOTEL
     // ============================
     @PostMapping
     public ResponseEntity<HotelResponseDTO> createHotel(
@@ -165,7 +175,7 @@ public class HotelController {
     }
 
     // ============================
-    // LISTAR HOTÉIS
+    //  LISTAR HOTÉIS (com filtro)
     // ============================
     @GetMapping
     public ResponseEntity<Page<HotelResponseDTO>> getHotels(
@@ -182,63 +192,66 @@ public class HotelController {
     }
 
     // ============================
-    // BUSCAR POR ID
+    //  BUSCAR POR ID
     // ============================
-    @GetMapping("/{id}")
+    @GetMapping("/{hotelId}")
     public ResponseEntity<HotelResponseDTO> getHotelById(
-            @PathVariable Long id) {
+            @PathVariable Long hotelId) {
 
-        return ResponseEntity.ok(hotelService.findById(id));
+        return ResponseEntity.ok(hotelService.findById(hotelId));
     }
 
     // ============================
-    // ATUALIZAR HOTEL
+    //  ATUALIZAR HOTEL
     // ============================
-    @PutMapping("/{id}")
+    @PutMapping("/{hotelId}")
     public ResponseEntity<HotelResponseDTO> updateHotel(
-            @PathVariable Long id,
+            @PathVariable Long hotelId,
             @RequestBody @Valid HotelRequestDTO dto) {
 
-        return ResponseEntity.ok(hotelService.update(id, dto));
+        return ResponseEntity.ok(hotelService.update(hotelId, dto));
     }
 
     // ============================
-    // DELETAR HOTEL
+    //  DELETAR HOTEL
     // ============================
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteHotel(@PathVariable Long id) {
+    @DeleteMapping("/{hotelId}")
+    public ResponseEntity<Void> deleteHotel(@PathVariable Long hotelId) {
 
-        hotelService.delete(id);
+        hotelService.delete(hotelId);
         return ResponseEntity.noContent().build();
     }
 
-    // ============================
-    // UPLOAD DE IMAGEM
-    // ============================
-    @PostMapping("/{id}/images")
+    // =====================================
+    //  UPLOAD DE IMAGEM
+    // =====================================
+    @PostMapping("/{hotelId}/images")
     public ResponseEntity<String> uploadImage(
-            @PathVariable Long id,
+            @PathVariable Long hotelId,
             @RequestParam("file") MultipartFile file
     ) {
 
-        String imageUrl = imageService.uploadImage(file, "hotels/" + id);
+        String imageUrl = imageService.uploadImage(file, "hotels/" + hotelId);
 
-        // salva a imagem associada ao hotel
-        hotelService.addImage(id, imageUrl);
+        // salva no hotel
+        hotelService.addImage(hotelId, imageUrl);
 
         return ResponseEntity.ok(imageUrl);
     }
 
-    // ============================
-    // DELETAR IMAGEM
-    // ============================
-
-    @DeleteMapping("/{id}/images")
+    // =====================================
+    //  DELETAR IMAGEM
+    // =====================================
+    @DeleteMapping("/{hotelId}/images")
     public ResponseEntity<Void> deleteImage(
-            @PathVariable Long id,
+            @PathVariable Long hotelId,
             @RequestBody Map<String, String> body
     ) {
-        hotelService.removeImage(id, body.get("url"));
+
+        String url = body.get("url");
+
+        hotelService.removeImage(hotelId, url);
+
         return ResponseEntity.noContent().build();
     }
 }
